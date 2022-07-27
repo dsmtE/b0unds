@@ -106,6 +106,22 @@ impl oxyde::App for B0oundsApp {
                 depth_stencil_attachment: None,
             });
 
+            // Update viewport accordingly to the Ui to display in the available rect
+            // It must be multiplied by window scale factor as render pass use physical pixels screen size
+
+            let window_scale_factor = _app_state.window.scale_factor() as f32;
+            let available_rect = _app_state.gui.available_rect;
+            let available_rect_size = available_rect.size();
+            
+            screen_render_pass.set_viewport(
+                available_rect.min.x * window_scale_factor,
+                available_rect.min.y * window_scale_factor,
+                available_rect_size.x * window_scale_factor,
+                available_rect_size.y * window_scale_factor,
+                0.0,
+                1.0,
+            );
+
             screen_render_pass.set_pipeline(&self.pipeline);
             screen_render_pass.draw(0..3, 0..1);
         }
