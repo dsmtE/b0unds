@@ -1,8 +1,16 @@
-#version 410
+#version 460
 
 layout(location = 0) in vec2 uv;
 
 layout(location = 0) out vec4 out_Color;
+
+struct CameraData {
+    mat4 ViewProjection;
+    vec3 Position;
+    vec3 Direction;
+};
+
+layout(set = 0, binding = 0)  uniform CameraData camera_uniforms;
 
 #define MAX_STEPS 100
 #define MAX_DIST  100.
@@ -61,7 +69,8 @@ void main() {
     // Centered coordinates (from -0.5 to 0.5) 
     vec2 centeredUv = uv-0.5;
 
-    vec3 origin = vec3(5., 5., -5.);
+    // vec3 origin = vec3(5., 5., -5.);
+    vec3 origin = camera_uniforms.Position;
     vec3 dir = normalize( vec3(centeredUv, 1.) ); 
     out_Color = vec4(render(origin, dir), 1.);
 }
