@@ -2,11 +2,23 @@ use std::path::Path;
 
 use oxyde::{wgpu_utils::shaders::load_glsl_shader_module_from_path, AppState};
 
+use oxyde::wgpu_utils::uniform_buffer::UniformBuffer;
+use oxyde::wgpu_utils::binding_builder::{BindGroupLayoutBuilder, BindGroupBuilder};
+use oxyde::wgpu_utils::binding_glsl;
 use anyhow::Result;
 use wgpu::RenderPipeline;
 
+use crate::camera::{Camera, CameraUniformBufferContent, UpdatableFromInputState};
+
 pub struct B0oundsApp {
     pipeline: RenderPipeline,
+    camera: Camera,
+    camera_uniform_buffer: UniformBuffer<CameraUniformBufferContent>,
+    camera_bind_group: wgpu::BindGroup,
+}
+
+fn aspect_ratio(app_state: &AppState) -> f32 {
+    app_state.config.width as f32 / app_state.config.height as f32
 }
 
 impl oxyde::App for B0oundsApp {
@@ -29,13 +41,26 @@ impl oxyde::App for B0oundsApp {
             ..Default::default()
         };
 
+        let camera = Camera::default().with_position(nalgebra_glm::vec3(1.0, 0.0, 1.0));
+
+        let camera_uniform_content = camera.Get_uniform_buffer_content(aspect_ratio(_app_state));
+        let camera_uniform_buffer = UniformBuffer::new_with_data(&_app_state.device, &camera_uniform_content);
+
         let multisample_state = wgpu::MultisampleState::default();
+        
+        let camera_bind_group_desc = BindGroupLayoutBuilder::new()
+            .add_binding_rendering(binding_glsl::uniform())
+            .create(&_app_state.device, Some("Camera"));
+        
+        let camera_bind_group = BindGroupBuilder::new(&camera_bind_group_desc)
+            .resource(camera_uniform_buffer.binding_resource())
+            .create(&_app_state.device, Some("Camera"));
 
         let pipeline = _app_state.device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Screen Render Pipeline"),
             layout: Some(&_app_state.device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Screen Pipeline Layout"),
-                bind_group_layouts: &[],
+                bind_group_layouts: &[&camera_bind_group_desc.layout],
                 push_constant_ranges: &[],
             })),
             vertex: wgpu::VertexState {
@@ -64,7 +89,12 @@ impl oxyde::App for B0oundsApp {
             panic!("{}", err);
         }
 
-        Self { pipeline }
+        Self {
+            pipeline,
+            camera,
+            camera_uniform_buffer,
+            camera_bind_group,
+        }
     }
 
     fn handle_event(&mut self, _app_state: &mut AppState, _event: &winit::event::Event<()>) -> Result<()> { Ok(()) }
@@ -83,7 +113,13 @@ impl oxyde::App for B0oundsApp {
         Ok(())
     }
 
-    fn update(&mut self, _app_state: &mut AppState) -> Result<()> { Ok(()) }
+    fn update(&mut self, _app_state: &mut AppState) -> Result<()> { 
+        self.camera.update_from_input_state(&_app_state.input_state, _app_state.system_state.delta_time as f32);
+        
+        self.camera_uniform_buffer.update_content(&_app_state.queue, self.camera.Get_uniform_buffer_content(aspect_ratio(_app_state)));
+
+        Ok(())
+    }
 
     fn render(
         &mut self,
@@ -123,6 +159,7 @@ impl oxyde::App for B0oundsApp {
             );
 
             screen_render_pass.set_pipeline(&self.pipeline);
+            screen_render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
             screen_render_pass.draw(0..3, 0..1);
         }
 

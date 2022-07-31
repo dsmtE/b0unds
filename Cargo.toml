@@ -15,6 +15,9 @@ winit = "0.26"
 
 anyhow = "1"
 
+nalgebra-glm = { version = "0.17", features = [ "convert-bytemuck" ] }
+bytemuck = { version = "1.7", features = [ "derive" ] }
+
 # logging
 log = "0.4"
 fern = {version = "0.6", features = [ "colored" ] }

@@ -1,4 +1,5 @@
 mod app;
+mod camera;
 
 use fern::colors::ColoredLevelConfig;
 

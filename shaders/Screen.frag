@@ -1,11 +1,18 @@
-#version 410
+#version 420
+
+#include "camera.glsl"
 
 layout(location = 0) in vec2 uv;
 
 layout(location = 0) out vec4 out_Color;
 
+layout(set = 0, binding = 0) uniform CameraUniforms
+{
+    CameraData Camera;
+};
+
 #define MAX_STEPS 100
-#define MAX_DIST  100.
+#define MAX_DIST  200.
 #define SURF_DIST .001
 
 float sphereSDF(vec3 p, float radius) { return length(p) - radius; }
@@ -57,11 +64,11 @@ vec3 render(vec3 ro, vec3 rd) {
 }
 
 void main() {
+    // Centered coordinates (from -1.0 to 1.0) 
+    vec2 centeredUv = uv*2.0-1.0;
 
-    // Centered coordinates (from -0.5 to 0.5) 
-    vec2 centeredUv = uv-0.5;
+    vec3 origin = rayOrigin(Camera, centeredUv);
+    vec3 dir = rayDirection(Camera, centeredUv);
 
-    vec3 origin = vec3(5., 5., -5.);
-    vec3 dir = normalize( vec3(centeredUv, 1.) ); 
     out_Color = vec4(render(origin, dir), 1.);
 }
