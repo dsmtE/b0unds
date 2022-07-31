@@ -30,6 +30,6 @@ fn main() {
         is_resizable: true,
         title: "B0unds",
         icon: None,
-    })
+    }, oxyde::RenderingConfig::default())
     .unwrap();
 }
