@@ -2,11 +2,13 @@ mod app;
 mod camera;
 
 use fern::colors::ColoredLevelConfig;
-
 fn main() {
     let color_config = ColoredLevelConfig::new();
     fern::Dispatch::new()
-        .level(log::LevelFilter::Warn)
+        .level(log::LevelFilter::Trace)
+        .level_for("wgpu_hal", log::LevelFilter::Warn)
+        .level_for("naga", log::LevelFilter::Warn)
+        .level_for("wgpu_core", log::LevelFilter::Warn)
         .format(|out, message, record| {
             out.finish(format_args!(
                 "{time}[{level}][{target}] {message}",
