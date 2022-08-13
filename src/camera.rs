@@ -1,5 +1,3 @@
-use std::default;
-
 use oxyde::InputsState;
 
 use nalgebra_glm as glm;
@@ -83,7 +81,7 @@ impl UpdatableFromInputState for Camera {
 }
 
 impl Camera {
-    pub fn Get_uniform_buffer_content(&self, aspect_ratio: f32) -> CameraUniformBufferContent {
+    pub fn uniform_buffer_content(&self, aspect_ratio: f32) -> CameraUniformBufferContent {
 
         let opengl_projection_to_wgpu_projection: glm::Mat4 = glm::mat4(
             1.0, 0.0, 0.0, 0.0,

@@ -57,7 +57,7 @@ impl oxyde::App for B0oundsApp {
 
         let camera = Camera::default().with_position(nalgebra_glm::vec3(1.0, 0.0, 1.0));
 
-        let camera_uniform_content = camera.Get_uniform_buffer_content(aspect_ratio(_app_state));
+        let camera_uniform_content = camera.uniform_buffer_content(aspect_ratio(_app_state));
         let camera_uniform_buffer = UniformBuffer::new_with_data(&_app_state.device, &camera_uniform_content);
 
         let multisample_state = wgpu::MultisampleState::default();
@@ -130,7 +130,7 @@ impl oxyde::App for B0oundsApp {
     fn update(&mut self, _app_state: &mut AppState) -> Result<()> { 
         self.camera.update_from_input_state(&_app_state.input_state, _app_state.system_state.delta_time as f32);
         
-        self.camera_uniform_buffer.update_content(&_app_state.queue, self.camera.Get_uniform_buffer_content(aspect_ratio(_app_state)));
+        self.camera_uniform_buffer.update_content(&_app_state.queue, self.camera.uniform_buffer_content(aspect_ratio(_app_state)));
 
         Ok(())
     }
