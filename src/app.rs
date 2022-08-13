@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use oxyde::{wgpu_utils::shaders::load_glsl_shader_module_from_path, AppState};
+use oxyde::{wgpu_utils::shaders, AppState};
 
 use oxyde::wgpu_utils::uniform_buffer::UniformBuffer;
 use oxyde::wgpu_utils::binding_builder::{BindGroupLayoutBuilder, BindGroupBuilder};
@@ -9,6 +9,8 @@ use anyhow::Result;
 use wgpu::RenderPipeline;
 
 use crate::camera::{Camera, CameraUniformBufferContent, UpdatableFromInputState};
+
+use crate::runtime_shader_builder::gen_scene_shader;
 
 pub struct B0oundsApp {
     pipeline: RenderPipeline,
@@ -28,9 +30,21 @@ impl oxyde::App for B0oundsApp {
             tx.send(e).expect("sending error failed");
         });
 
-        let frag_shader_module = load_glsl_shader_module_from_path(&_app_state.device, Path::new("shaders/Screen.frag"), "main").unwrap();
-        let vert_shader_module = load_glsl_shader_module_from_path(&_app_state.device, Path::new("shaders/Screen.vert"), "main").unwrap();
-
+        let vert_shader_module = shaders::load_glsl_shader_module_from_path(
+            &_app_state.device,
+            Path::new("shaders/Screen.vert"),
+            "main").unwrap();
+        
+        let shader_code = gen_scene_shader();
+        let frag_shader_module = shaders::load_glsl_shader_module_from_string(
+            &_app_state.device,
+            &shader_code,
+            shaders::ShaderKind::Fragment,
+            "main",
+            vec!["shaders/"],
+            Some("mainFragmentShader"),
+        ).unwrap();
+            
         // Pipeline
         let primitive_state = wgpu::PrimitiveState {
             topology: wgpu::PrimitiveTopology::TriangleList,

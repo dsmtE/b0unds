@@ -1,5 +1,6 @@
 mod app;
 mod camera;
+mod runtime_shader_builder;
 
 use fern::colors::ColoredLevelConfig;
 fn main() {
