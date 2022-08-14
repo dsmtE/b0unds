@@ -5,6 +5,7 @@ use nalgebra_glm as glm;
 use bytemuck::{Pod, Zeroable};
 
 const VERTICAL_FOV: f32 = 80.0f32;
+const DEG_TO_RAD: f32 = std::f32::consts::PI / 180.0f32;
 pub struct Camera {
     pub position: glm::Vec3,
     pub direction: glm::Vec3,
@@ -33,7 +34,7 @@ impl Default for Camera {
             up: glm::Vec3::y(),
 
             translation_speed: 8.0,
-            rotation_speed: 1.0,
+            rotation_speed: 1.0 * DEG_TO_RAD, // in radians
         }
     }
 }
@@ -51,29 +52,31 @@ impl Camera {
 impl UpdatableFromInputState for Camera {
     fn update_from_input_state(&mut self, input_state: &InputsState, delta_time: f32) {
         let right: glm::Vec3 = self.direction.cross(&self.up).normalize();
+        let time_scaled_transition_speed = self.translation_speed * delta_time;
 
         if input_state.is_key_pressed(&winit::event::VirtualKeyCode::Z) {
-            self.position += self.direction * self.translation_speed * delta_time;
+            self.position += self.direction * time_scaled_transition_speed;
         }
         if input_state.is_key_pressed(&winit::event::VirtualKeyCode::S) {
-            self.position -= self.direction * self.translation_speed * delta_time;
+            self.position -= self.direction * time_scaled_transition_speed;
         }
         if input_state.is_key_pressed(&winit::event::VirtualKeyCode::Q) {
-            self.position -= right * self.translation_speed * delta_time;
+            self.position -= right * time_scaled_transition_speed;
         }
         if input_state.is_key_pressed(&winit::event::VirtualKeyCode::D) {
-            self.position += right * self.translation_speed * delta_time;
+            self.position += right * time_scaled_transition_speed;
         }
         if input_state.is_key_pressed(&winit::event::VirtualKeyCode::Space) {
-            self.position += self.up * self.translation_speed * delta_time;
+            self.position += self.up * time_scaled_transition_speed;
         }
         if input_state.is_key_pressed(&winit::event::VirtualKeyCode::LControl) {
-            self.position -= self.up * self.translation_speed * delta_time;
+            self.position -= self.up * time_scaled_transition_speed;
         }
 
         if input_state.mouse.is_left_clicked {
-            let rotation_updown= glm::quat_angle_axis(-input_state.mouse.position_delta.y * glm::pi::<f32>() / 180.0f32 * self.rotation_speed * delta_time, &right);
-            let rotation_leftright = glm::quat_angle_axis(-input_state.mouse.position_delta.x * glm::pi::<f32>() / 180.0f32 * self.rotation_speed * delta_time, &self.up);
+            let time_scaled_rotation_speed = self.rotation_speed * delta_time;
+            let rotation_updown= glm::quat_angle_axis(-input_state.mouse.position_delta.y * time_scaled_rotation_speed, &right);
+            let rotation_leftright = glm::quat_angle_axis(-input_state.mouse.position_delta.x * time_scaled_rotation_speed, &self.up);
 
             self.direction = glm::quat_rotate_vec3(&(rotation_updown + rotation_leftright), &self.direction);
         }
