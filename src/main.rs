@@ -6,7 +6,7 @@ use fern::colors::ColoredLevelConfig;
 fn main() {
     let color_config = ColoredLevelConfig::new();
     fern::Dispatch::new()
-        .level(log::LevelFilter::Trace)
+        .level(log::LevelFilter::Debug)
         .level_for("wgpu_hal", log::LevelFilter::Warn)
         .level_for("naga", log::LevelFilter::Warn)
         .level_for("wgpu_core", log::LevelFilter::Warn)
@@ -30,10 +30,16 @@ fn main() {
         .apply()
         .unwrap();
 
-    oxyde::run_application::<app::B0oundsApp>(oxyde::AppConfig {
-        is_resizable: true,
-        title: "B0unds",
-        icon: None,
-    }, oxyde::RenderingConfig::default())
+    oxyde::run_application::<app::B0oundsApp>(
+        oxyde::AppConfig {
+            is_resizable: true,
+            title: "B0unds",
+            icon: None,
+        },
+        oxyde::RenderingConfig {
+            power_preference: wgpu::PowerPreference::HighPerformance,
+            ..oxyde::RenderingConfig::default()
+        }
+    )
     .unwrap();
 }
