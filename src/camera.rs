@@ -54,22 +54,22 @@ impl UpdatableFromInputState for Camera {
         let right: glm::Vec3 = self.direction.cross(&self.up).normalize();
         let time_scaled_transition_speed = self.translation_speed * delta_time;
 
-        if input_state.is_key_pressed(&winit::event::VirtualKeyCode::Z) {
+        if input_state.is_key_pressed(17) { // Z
             self.position += self.direction * time_scaled_transition_speed;
         }
-        if input_state.is_key_pressed(&winit::event::VirtualKeyCode::S) {
+        if input_state.is_key_pressed(31) { // S
             self.position -= self.direction * time_scaled_transition_speed;
         }
-        if input_state.is_key_pressed(&winit::event::VirtualKeyCode::Q) {
+        if input_state.is_key_pressed(30) { // Q
             self.position -= right * time_scaled_transition_speed;
         }
-        if input_state.is_key_pressed(&winit::event::VirtualKeyCode::D) {
+        if input_state.is_key_pressed(32) { // D
             self.position += right * time_scaled_transition_speed;
         }
-        if input_state.is_key_pressed(&winit::event::VirtualKeyCode::Space) {
+        if input_state.is_key_pressed(57) { // Space
             self.position += self.up * time_scaled_transition_speed;
         }
-        if input_state.is_key_pressed(&winit::event::VirtualKeyCode::LControl) {
+        if input_state.is_key_pressed(29) { // LControl
             self.position -= self.up * time_scaled_transition_speed;
         }
 
