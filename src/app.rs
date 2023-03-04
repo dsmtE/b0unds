@@ -26,9 +26,9 @@ fn aspect_ratio(app_state: &AppState) -> f32 {
 impl oxyde::App for B0oundsApp {
     fn create(_app_state: &mut AppState) -> Self {
         let (tx, rx) = std::sync::mpsc::channel::<wgpu::Error>();
-        _app_state.device.on_uncaptured_error(move |e: wgpu::Error| {
+        _app_state.device.on_uncaptured_error( Box::new(move |e: wgpu::Error| {
             tx.send(e).expect("sending error failed");
-        });
+        }));
 
         let vert_shader_module = shaders::load_glsl_shader_module_from_path(
             &_app_state.device,
@@ -85,11 +85,11 @@ impl oxyde::App for B0oundsApp {
             fragment: Some(wgpu::FragmentState {
                 module: &frag_shader_module.module,
                 entry_point: "main",
-                targets: &[wgpu::ColorTargetState {
+                targets: &[Some(wgpu::ColorTargetState {
                     format: _app_state.config.format,
                     blend: Some(wgpu::BlendState::REPLACE),
                     write_mask: wgpu::ColorWrites::ALL,
-                }],
+                })],
             }),
             primitive: primitive_state,
             depth_stencil: None,
@@ -97,7 +97,7 @@ impl oxyde::App for B0oundsApp {
             multiview: None,
         });
 
-        _app_state.device.on_uncaptured_error(|err| panic!("{}", err));
+        _app_state.device.on_uncaptured_error(Box::new(|err| panic!("{}", err)));
 
         if let Ok(err) = rx.try_recv() {
             panic!("{}", err);
@@ -113,7 +113,7 @@ impl oxyde::App for B0oundsApp {
 
     fn handle_event(&mut self, _app_state: &mut AppState, _event: &winit::event::Event<()>) -> Result<()> { Ok(()) }
 
-    fn render_gui(&mut self, _ctx: &epi::egui::Context) -> Result<()> {
+    fn render_gui(&mut self, _ctx: &egui::Context) -> Result<()> {
         egui::TopBottomPanel::top("top_panel").resizable(true).show(&_ctx, |ui| {
             egui::menu::bar(ui, |_ui| {});
         });
@@ -147,11 +147,11 @@ impl oxyde::App for B0oundsApp {
                 label: Some("Screen Render Pass"),
                 color_attachments: &[
                     // This is what [[location(0)]] in the fragment shader targets
-                    wgpu::RenderPassColorAttachment {
+                    Some(wgpu::RenderPassColorAttachment {
                         view: &_output_view,
                         resolve_target: None,
                         ops: wgpu::Operations { load: wgpu::LoadOp::Load, store: true },
-                    },
+                    }),
                 ],
                 depth_stencil_attachment: None,
             });
