@@ -115,13 +115,13 @@ impl oxyde::App for B0oundsApp {
 
     fn render_gui(&mut self, _ctx: &epi::egui::Context) -> Result<()> {
         egui::TopBottomPanel::top("top_panel").resizable(true).show(&_ctx, |ui| {
-            egui::menu::bar(ui, |ui| {});
+            egui::menu::bar(ui, |_ui| {});
         });
 
         egui::SidePanel::right("Inspector").resizable(true).show(&_ctx, |ui| {
             ui.heading("Inspector");
 
-            egui::CollapsingHeader::new("Display Options").default_open(true).show(ui, |ui| {});
+            egui::CollapsingHeader::new("Display Options").default_open(true).show(ui, |_ui| {});
         });
 
         Ok(())
