@@ -1,5 +1,9 @@
 use std::path::Path;
 
+use oxyde::wgpu as wgpu;
+use oxyde::egui as egui;
+use oxyde::winit as winit;
+
 use oxyde::{wgpu_utils::shaders, AppState};
 
 use oxyde::wgpu_utils::uniform_buffer::UniformBuffer;
@@ -138,11 +142,14 @@ impl oxyde::App for B0oundsApp {
     fn render(
         &mut self,
         _app_state: &mut AppState,
-        _encoder: &mut wgpu::CommandEncoder,
         _output_view: &wgpu::TextureView,
     ) -> Result<(), wgpu::SurfaceError> {
         // render on screen
         {
+            let mut _encoder = _app_state.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Screen Render Encoder"),
+            });
+
             let mut screen_render_pass = _encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Screen Render Pass"),
                 color_attachments: &[
@@ -175,6 +182,8 @@ impl oxyde::App for B0oundsApp {
             screen_render_pass.set_pipeline(&self.pipeline);
             screen_render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
             screen_render_pass.draw(0..3, 0..1);
+
+            _app_state.queue.submit(Some(_encoder.finish()));
         }
 
         Ok(())

@@ -8,10 +8,7 @@ edition = "2021"
 members = ["crates/*"]
 
 [dependencies]
-oxyde = {git = 'https://github.com/dsmtE/oxyde' }
-
-wgpu = "0.15"
-winit = "0.28"
+oxyde = {git = 'https://github.com/dsmtE/oxyde', features = ["glsl", "icon"]}
 
 anyhow = "1"
 
@@ -22,9 +19,6 @@ bytemuck = { version = "1.13", features = [ "derive" ] }
 log = "0.4"
 fern = {version = "0.6", features = [ "colored" ] }
 chrono = "0.4"
-
-#egui stuff
-egui = "0.21"
 
 # Overriding repository URL to work with git submodules
 [patch."https://github.com/dsmtE/oxyde"]

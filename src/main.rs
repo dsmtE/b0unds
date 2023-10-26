@@ -35,9 +35,10 @@ fn main() {
             is_resizable: true,
             title: "B0unds",
             icon: None,
+            control_flow: oxyde::winit::event_loop::ControlFlow::Poll,
         },
         oxyde::RenderingConfig {
-            power_preference: wgpu::PowerPreference::HighPerformance,
+            power_preference: oxyde::wgpu::PowerPreference::HighPerformance,
             ..oxyde::RenderingConfig::default()
         }
     )
